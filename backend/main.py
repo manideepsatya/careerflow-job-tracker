@@ -1,12 +1,15 @@
-from fastapi import FastAPI
+from sqlalchemy.orm import Session
+from database import engine, get_db
+import models
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
+models.Base.metadata.create_all(bind=engine)
 class JobApplication(BaseModel):
     id: int
     company: str
     role: str
     status: str
 
-applications = []
 app = FastAPI()
 
 @app.get("/")
@@ -16,31 +19,69 @@ def home():
 def health_check():
     return {"status": "healthy"}
 @app.post("/applications")
-def create_application(application: JobApplication):
-    applications.append(application)
-    return application
+def create_application(application: JobApplication, db: Session = Depends(get_db)):
+    db_application = models.JobApplication(
+        id=application.id,
+        company=application.company,
+        role=application.role,
+        status=application.status
+    )
+
+    db.add(db_application)
+    db.commit()
+    db.refresh(db_application)
+
+    return db_application
 @app.get("/applications")
-def get_applications():
-    return applications
+def get_applications(db: Session = Depends(get_db)):
+    return db.query(models.JobApplication).all()
 @app.get("/applications/{application_id}")
-def get_application(application_id: int):
-    for application in applications:
-        if application.id == application_id:
-            return application
+def get_application(application_id: int, db: Session = Depends(get_db)):
+    application = (
+        db.query(models.JobApplication)
+        .filter(models.JobApplication.id == application_id)
+        .first()
+    )
+
+    if application:
+        return application
+
     return {"message": "Application not found"}
 @app.put("/applications/{application_id}")
-def update_application(application_id: int, updated_application: JobApplication):
-    for index, application in enumerate(applications):
-        if application.id == application_id:
-            applications[index] = updated_application
-            return updated_application
+def update_application(
+    application_id: int,
+    updated_application: JobApplication,
+    db: Session = Depends(get_db)
+):
+    application = (
+        db.query(models.JobApplication)
+        .filter(models.JobApplication.id == application_id)
+        .first()
+    )
 
-    return {"message": "Application not found"}
+    if not application:
+        return {"message": "Application not found"}
+
+    application.company = updated_application.company
+    application.role = updated_application.role
+    application.status = updated_application.status
+
+    db.commit()
+    db.refresh(application)
+
+    return application
 @app.delete("/applications/{application_id}")
-def delete_application(application_id: int):
-    for index, application in enumerate(applications):
-        if application.id == application_id:
-            deleted_application = applications.pop(index)
-            return deleted_application
+def delete_application(application_id: int, db: Session = Depends(get_db)):
+    application = (
+        db.query(models.JobApplication)
+        .filter(models.JobApplication.id == application_id)
+        .first()
+    )
 
-    return {"message": "Application not found"}
+    if not application:
+        return {"message": "Application not found"}
+
+    db.delete(application)
+    db.commit()
+
+    return {"message": "Application deleted successfully"}
