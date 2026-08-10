@@ -5,7 +5,6 @@ from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 models.Base.metadata.create_all(bind=engine)
 class JobApplication(BaseModel):
-    id: int
     company: str
     role: str
     status: str
@@ -21,12 +20,11 @@ def health_check():
 @app.post("/applications")
 def create_application(application: JobApplication, db: Session = Depends(get_db)):
     db_application = models.JobApplication(
-        id=application.id,
-        company=application.company,
-        role=application.role,
-        status=application.status
+    company=application.company,
+    role=application.role,
+    status=application.status
     )
-
+    
     db.add(db_application)
     db.commit()
     db.refresh(db_application)
