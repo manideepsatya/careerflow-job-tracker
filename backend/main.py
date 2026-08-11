@@ -9,6 +9,7 @@ class JobApplication(BaseModel):
     company: str = Field(min_length=1)
     role: str = Field(min_length=1)
     location: str = Field(min_length=1)
+    job_url: str = Field(min_length=1)
     status: Literal["Interested", "Applied", "Assessment", "Interview", "Offer", "Rejected"]
 
 app = FastAPI()
@@ -25,6 +26,7 @@ def create_application(application: JobApplication, db: Session = Depends(get_db
         company=application.company,
         role=application.role,
         location=application.location,
+        job_url=application.job_url,
         status=application.status
 )
     
@@ -72,6 +74,7 @@ def update_application(
     application.company = updated_application.company
     application.role = updated_application.role
     application.location = updated_application.location
+    application.job_url = updated_application.job_url
     application.status = updated_application.status
 
     db.commit()

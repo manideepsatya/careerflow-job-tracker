@@ -10,4 +10,5 @@ class JobApplication(Base):
     company = Column(String, nullable=False)
     role = Column(String, nullable=False)
     location = Column(String, nullable=False)
+    job_url = Column(String, nullable=False)
     status = Column(String, nullable=False)
