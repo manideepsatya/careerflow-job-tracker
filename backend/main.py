@@ -8,6 +8,7 @@ models.Base.metadata.create_all(bind=engine)
 class JobApplication(BaseModel):
     company: str = Field(min_length=1)
     role: str = Field(min_length=1)
+    location: str = Field(min_length=1)
     status: Literal["Interested", "Applied", "Assessment", "Interview", "Offer", "Rejected"]
 
 app = FastAPI()
@@ -21,10 +22,12 @@ def health_check():
 @app.post("/applications")
 def create_application(application: JobApplication, db: Session = Depends(get_db)):
     db_application = models.JobApplication(
-    company=application.company,
-    role=application.role,
-    status=application.status
-    )
+        company=application.company,
+        role=application.role,
+        location=application.location,
+        status=application.status
+)
+    
 
     db.add(db_application)
     db.commit()
@@ -68,6 +71,7 @@ def update_application(
 
     application.company = updated_application.company
     application.role = updated_application.role
+    application.location = updated_application.location
     application.status = updated_application.status
 
     db.commit()

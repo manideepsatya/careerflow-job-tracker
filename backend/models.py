@@ -9,4 +9,5 @@ class JobApplication(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     company = Column(String, nullable=False)
     role = Column(String, nullable=False)
+    location = Column(String, nullable=False)
     status = Column(String, nullable=False)
