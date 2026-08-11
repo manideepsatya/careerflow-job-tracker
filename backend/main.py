@@ -2,12 +2,12 @@ from sqlalchemy.orm import Session
 from database import engine, get_db
 import models
 from fastapi import FastAPI, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Literal
 models.Base.metadata.create_all(bind=engine)
 class JobApplication(BaseModel):
-    company: str
-    role: str
+    company: str = Field(min_length=1)
+    role: str = Field(min_length=1)
     status: Literal["Interested", "Applied", "Assessment", "Interview", "Offer", "Rejected"]
 
 app = FastAPI()
