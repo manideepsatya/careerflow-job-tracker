@@ -3,11 +3,12 @@ from database import engine, get_db
 import models
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
+from typing import Literal
 models.Base.metadata.create_all(bind=engine)
 class JobApplication(BaseModel):
     company: str
     role: str
-    status: str
+    status: Literal["Interested", "Applied", "Assessment", "Interview", "Offer", "Rejected"]
 
 app = FastAPI()
 
