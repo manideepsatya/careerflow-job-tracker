@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from database import engine, get_db
 import models
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 models.Base.metadata.create_all(bind=engine)
 class JobApplication(BaseModel):
@@ -24,7 +24,7 @@ def create_application(application: JobApplication, db: Session = Depends(get_db
     role=application.role,
     status=application.status
     )
-    
+
     db.add(db_application)
     db.commit()
     db.refresh(db_application)
@@ -41,10 +41,12 @@ def get_application(application_id: int, db: Session = Depends(get_db)):
         .first()
     )
 
-    if application:
-        return application
-
-    return {"message": "Application not found"}
+    if not application:
+        raise HTTPException(
+           status_code=404,
+           detail="Application not found"
+    )
+    return application
 @app.put("/applications/{application_id}")
 def update_application(
     application_id: int,
@@ -58,7 +60,10 @@ def update_application(
     )
 
     if not application:
-        return {"message": "Application not found"}
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found"
+    )
 
     application.company = updated_application.company
     application.role = updated_application.role
@@ -77,7 +82,10 @@ def delete_application(application_id: int, db: Session = Depends(get_db)):
     )
 
     if not application:
-        return {"message": "Application not found"}
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found"
+    )
 
     db.delete(application)
     db.commit()
