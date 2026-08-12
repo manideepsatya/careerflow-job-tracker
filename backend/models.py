@@ -11,4 +11,5 @@ class JobApplication(Base):
     role = Column(String, nullable=False)
     location = Column(String, nullable=False)
     job_url = Column(String, nullable=False)
+    notes = Column(String, nullable=False, default="")
     status = Column(String, nullable=False)
