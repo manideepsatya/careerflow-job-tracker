@@ -46,6 +46,7 @@ def get_applications(
     status: str | None = None,
     company: str | None = None,
     location: str | None = None,
+    sort: str | None = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.JobApplication)
@@ -59,6 +60,15 @@ def get_applications(
     if location:
         query = query.filter(models.JobApplication.location.ilike(f"%{location}%"))
 
+    if sort == "newest":
+        query = query.order_by(
+            models.JobApplication.applied_date.desc().nullslast()
+        )
+
+    elif sort == "oldest":
+        query = query.order_by(
+            models.JobApplication.applied_date.asc().nullslast()
+        )
     return query.all()
 @app.get("/applications/{application_id}")
 def get_application(application_id: int, db: Session = Depends(get_db)):
