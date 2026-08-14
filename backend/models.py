@@ -12,4 +12,5 @@ class JobApplication(Base):
     location = Column(String, nullable=False)
     job_url = Column(String, nullable=False)
     notes = Column(String, nullable=False, default="")
+    applied_date = Column(String, nullable=False, default="")
     status = Column(String, nullable=False)
