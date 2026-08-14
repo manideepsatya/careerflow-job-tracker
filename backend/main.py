@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from database import engine, get_db
 import models
 from fastapi import FastAPI, Depends, HTTPException
+from datetime import date
 from pydantic import BaseModel, Field
 from typing import Literal
 models.Base.metadata.create_all(bind=engine)
@@ -11,7 +12,7 @@ class JobApplication(BaseModel):
     location: str = Field(min_length=1)
     job_url: str = Field(min_length=1)
     notes: str = ""
-    applied_date: str = ""
+    applied_date: date | None = None
     status: Literal["Interested", "Applied", "Assessment", "Interview", "Offer", "Rejected"]
 
 app = FastAPI()

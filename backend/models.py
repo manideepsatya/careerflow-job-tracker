@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Date
 
 from database import Base
 
@@ -12,5 +12,5 @@ class JobApplication(Base):
     location = Column(String, nullable=False)
     job_url = Column(String, nullable=False)
     notes = Column(String, nullable=False, default="")
-    applied_date = Column(String, nullable=False, default="")
+    applied_date = Column(Date, nullable=True)
     status = Column(String, nullable=False)
