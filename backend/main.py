@@ -72,7 +72,12 @@ def get_applications(
             models.JobApplication.applied_date.asc().nullslast()
         )
 
-    return query.offset(skip).limit(limit).all()
+    total = query.count()
+    applications = query.offset(skip).limit(limit).all()
+    return {
+        "total": total,
+        "applications": applications
+    }
 @app.get("/applications/{application_id}")
 def get_application(application_id: int, db: Session = Depends(get_db)):
     application = (
