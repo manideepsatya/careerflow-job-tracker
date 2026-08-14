@@ -47,6 +47,8 @@ def get_applications(
     company: str | None = None,
     location: str | None = None,
     sort: str | None = None,
+    skip: int = 0,
+    limit: int = 20,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.JobApplication)
@@ -69,7 +71,8 @@ def get_applications(
         query = query.order_by(
             models.JobApplication.applied_date.asc().nullslast()
         )
-    return query.all()
+
+    return query.offset(skip).limit(limit).all()
 @app.get("/applications/{application_id}")
 def get_application(application_id: int, db: Session = Depends(get_db)):
     application = (
