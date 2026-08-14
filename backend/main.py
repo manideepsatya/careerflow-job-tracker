@@ -14,6 +14,13 @@ class JobApplication(BaseModel):
     notes: str = ""
     applied_date: date | None = None
     status: Literal["Interested", "Applied", "Assessment", "Interview", "Offer", "Rejected"]
+class JobApplicationResponse(JobApplication):
+    id: int
+
+
+class PaginatedApplications(BaseModel):
+    total: int
+    applications: list[JobApplicationResponse]
 
 app = FastAPI()
 
@@ -23,7 +30,7 @@ def home():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
-@app.post("/applications")
+@app.post("/applications", response_model=JobApplicationResponse)
 def create_application(application: JobApplication, db: Session = Depends(get_db)):
     db_application = models.JobApplication(
         company=application.company,
@@ -41,7 +48,7 @@ def create_application(application: JobApplication, db: Session = Depends(get_db
     db.refresh(db_application)
 
     return db_application
-@app.get("/applications")
+@app.get("/applications", response_model=PaginatedApplications)
 def get_applications(
     status: str | None = None,
     company: str | None = None,
@@ -78,7 +85,7 @@ def get_applications(
         "total": total,
         "applications": applications
     }
-@app.get("/applications/{application_id}")
+@app.get("/applications/{application_id}", response_model=JobApplicationResponse)
 def get_application(application_id: int, db: Session = Depends(get_db)):
     application = (
         db.query(models.JobApplication)
@@ -92,7 +99,7 @@ def get_application(application_id: int, db: Session = Depends(get_db)):
            detail="Application not found"
     )
     return application
-@app.put("/applications/{application_id}")
+@app.put("/applications/{application_id}", response_model=JobApplicationResponse)
 def update_application(
     application_id: int,
     updated_application: JobApplication,
