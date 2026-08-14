@@ -132,3 +132,38 @@ def delete_application(application_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Application deleted successfully"}
+@app.get("/stats")
+def get_stats(db: Session = Depends(get_db)):
+    total = db.query(models.JobApplication).count()
+
+    applied = (
+        db.query(models.JobApplication)
+        .filter(models.JobApplication.status == "Applied")
+        .count()
+    )
+
+    interview = (
+        db.query(models.JobApplication)
+        .filter(models.JobApplication.status == "Interview")
+        .count()
+    )
+
+    offer = (
+        db.query(models.JobApplication)
+        .filter(models.JobApplication.status == "Offer")
+        .count()
+    )
+
+    rejected = (
+        db.query(models.JobApplication)
+        .filter(models.JobApplication.status == "Rejected")
+        .count()
+    )
+
+    return {
+        "total": total,
+        "applied": applied,
+        "interview": interview,
+        "offer": offer,
+        "rejected": rejected
+    }
