@@ -42,8 +42,20 @@ def create_application(application: JobApplication, db: Session = Depends(get_db
 
     return db_application
 @app.get("/applications")
-def get_applications(db: Session = Depends(get_db)):
-    return db.query(models.JobApplication).all()
+def get_applications(
+    status: str | None = None,
+    company: str | None = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.JobApplication)
+
+    if status:
+        query = query.filter(models.JobApplication.status == status)
+
+    if company:
+        query = query.filter(models.JobApplication.company.ilike(f"%{company}%"))
+
+    return query.all()
 @app.get("/applications/{application_id}")
 def get_application(application_id: int, db: Session = Depends(get_db)):
     application = (
